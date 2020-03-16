@@ -130,6 +130,28 @@ describe('Compile', function () {
         assert(catalog.called);
     });
 
+    it('Sorts output so builds always put out the same file', function () {
+        var files = ['test/fixtures/nl.po'];
+        var output = testCompile(files, {
+            sort:true
+        });
+        var catalog = {
+            called: false,
+            setStrings: function (language, strings) {
+                var l = Object.keys(strings);
+                var r = l.slice().sort();
+                for (var i = 0;i<l.length;i++) {
+                    assert(l[i] === r[i]);
+                }
+                this.called = true;
+            }
+        };
+
+        var context = vm.createContext(makeEnv('gettext', catalog));
+        vm.runInContext(output, context);
+        assert(catalog.called);
+    });
+
     it('Allows merging multiple languages', function () {
         var files = ['test/fixtures/nl.po', 'test/fixtures/fr.po'];
         var output = testCompile(files);
